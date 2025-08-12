@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Oracle 全知识体系（2025版）</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --accent:#7dd3fc; --muted:#94a3b8; --text:#e6eef8;
+    }
+    body{font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Roboto, "Microsoft Yahei", "PingFang SC", Arial; margin:0; background:linear-gradient(180deg,#071428 0%, #071b2a 100%); color:var(--text);}
+    header{padding:28px 20px; border-bottom:1px solid rgba(255,255,255,0.03);}
+    .wrap{max-width:1100px;margin:20px auto;padding:20px;}
+    h1{margin:0;font-size:28px;}
+    p.lead{color:var(--muted);margin-top:8px;}
+    .grid{display:flex;gap:20px;align-items:flex-start;}
+    nav{width:320px;flex:0 0 320px;background:rgba(255,255,255,0.03);padding:18px;border-radius:12px;height:75vh;overflow:auto}
+    nav h3{margin-top:0;color:var(--accent)}
+    nav a{display:block;color:var(--text);text-decoration:none;padding:8px;border-radius:8px;margin:6px 0;font-size:14px}
+    nav a:hover{background:rgba(125,211,252,0.06)}
+    main{flex:1;background:rgba(255,255,255,0.02);padding:22px;border-radius:12px;height:75vh;overflow:auto}
+    section{margin-bottom:24px}
+    h2{color:var(--accent);margin-top:0}
+    pre{background:#021426;color:#cdeafc;padding:12px;border-radius:8px;overflow:auto}
+    code{background:rgba(0,0,0,0.2);padding:2px 6px;border-radius:4px}
+    .kbd{background:#0b1220;border:1px solid rgba(255,255,255,0.03);padding:6px 8px;border-radius:6px;font-weight:600}
+    footer{max-width:1100px;margin:12px auto;color:var(--muted);font-size:13px;padding:10px}
+    @media (max-width:900px){.grid{flex-direction:column}.nav{width:auto}nav{width:100%;height:auto}.wrap{padding:12px}}
+    .example{background:linear-gradient(90deg, rgba(125,211,252,0.03), rgba(125,211,252,0.01));padding:12px;border-radius:8px;border:1px solid rgba(125,211,252,0.06)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Oracle 全知识体系（2025版）</h1>
+      <p class="lead">由入门到进阶：核心概念、SQL/PLSQL、管理员任务、备份恢复、性能优化与高可用。适配 Oracle Database 23ai 特性与实践建议。</p>
+    </div>
+  </header>
+
+  <div class="wrap grid">
+    <nav aria-label="目录">
+      <h3>目录</h3>
+      <a href="#intro">简介与学习建议</a>
+      <a href="#arch">1. 数据库基础与架构</a>
+      <a href="#sql">2. SQL 基础</a>
+      <a href="#plsql">3. PL/SQL 编程</a>
+      <a href="#users">4. 用户与权限管理</a>
+      <a href="#storage">5. 存储与表空间管理</a>
+      <a href="#backup">6. 备份与恢复（RMAN / Data Pump）</a>
+      <a href="#perf">7. 性能优化与监控</a>
+      <a href="#ha">8. 高可用与进阶技术</a>
+      <a href="#23ai">9. Oracle 23ai 与 AI 特性</a>
+      <a href="#resources">附：实战练习与资源</a>
+      <a href="#deploy">如何部署为在线文档（GitHub Pages）</a>
+    </nav>
+
+    <main>
+      <section id="intro">
+        <h2>简介与学习建议</h2>
+        <p>学习 Oracle 的顺序建议：概念 → SQL → PL/SQL → 管理（用户/表空间/备份）→ 性能与监控 → 高可用与进阶。每步配合实操环境（可使用 Oracle Database Free 或 Docker 镜像）并写练习笔记。</p>
+        <p class="example"><strong>学习节奏建议：</strong>前 6 周完成基础（SQL+PL/SQL+基础管理），接下来 6–12 周深入备份/恢复、性能调优与高可用；持续实践与阅读官方文档。</p>
+      </section>
+
+      <section id="arch">
+        <h2>1. 数据库基础与架构</h2>
+        <ol>
+          <li><strong>实例 vs 数据库：</strong>实例（instance）是内存与后台进程的集合，数据库（database）是物理文件集合（数据文件、控制文件、重做日志）。</li>
+          <li><strong>内存结构：</strong>SGA（System Global Area）包含缓冲区、共享池、日志缓冲等；PGA（Program Global Area）为单个会话的私有内存。</li>
+          <li><strong>后台进程：</strong>如 DBWn（写数据文件）、LGWR（写日志）、CKPT、SMON（系统监控）、PMON（进程监控）。</li>
+          <li><strong>逻辑与物理结构：</strong>表空间(tablespace)、段(segment)、区(extent)、块(block)。</li>
+          <li><strong>多租户（CDB/PDB）：</strong>CDB 管理多个 PDB，适合云、多租户与隔离场景。</li>
+        </ol>
+        <p><strong>示例命令 - 查看实例信息：</strong></p>
+        <pre>SHOW PARAMETER db_name;
+SELECT name, open_mode FROM v$pdbs; -- (CDB 环境查看 PDB)</pre>
+      </section>
+
+      <section id="sql">
+        <h2>2. SQL 基础</h2>
+        <p>覆盖 DDL/DML/DQL/DCL，建议配合练习题与真实 sample schema（HR）练习。</p>
+        <h4>常用查询示例</h4>
+        <pre>SELECT e.employee_id, e.first_name, d.department_name
+FROM employees e
+JOIN departments d ON e.department_id = d.department_id
+WHERE e.salary &gt; 10000
+ORDER BY e.employee_id;</pre>
+        <h4>索引与性能提示</h4>
+        <ul>
+          <li>创建索引：<code>CREATE INDEX idx_emp_salary ON employees(salary);</code></li>
+          <li>避免在 WHERE 中对列大量使用函数，否则索引失效；使用 function-based index 若必须。</li>
+        </ul>
+      </section>
+
+      <section id="plsql">
+        <h2>3. PL/SQL 编程</h2>
+        <p>PL/SQL 是 Oracle 的过程化扩展，适合把业务逻辑放在数据库端。</p>
+        <h4>存储过程示例</h4>
+        <pre>CREATE OR REPLACE PROCEDURE raise_salary(p_emp_id NUMBER, p_amt NUMBER) IS
+BEGIN
+  UPDATE employees SET salary = salary + p_amt WHERE employee_id = p_emp_id;
+  COMMIT;
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    RAISE;
+END raise_salary;
+/</pre>
+        <p>重点：异常处理、游标、批量操作（FORALL、BULK COLLECT）能够显著提升 PL/SQL 性能。</p>
+      </section>
+
+      <section id="users">
+        <h2>4. 用户与权限管理</h2>
+        <p>用户（schema）与权限管理是数据库安全基础。</p>
+        <pre>-- 创建用户并赋权
+CREATE USER dev1 IDENTIFIED BY StrongPass123;
+GRANT CREATE SESSION, CREATE TABLE TO dev1;
+GRANT RESOURCE TO dev1; -- 小心使用，按需授予</pre>
+        <p>生产环境推荐使用最小权限原则（Least Privilege），并结合审计（AUDIT）记录关键操作。</p>
+      </section>
+
+      <section id="storage">
+        <h2>5. 存储与表空间管理</h2>
+        <p>理解 permanent / temporary / undo 表空间与如何管理数据文件。</p>
+        <pre>-- 创建表空间
+CREATE TABLESPACE users_ts DATAFILE '/u01/app/oracle/oradata/ORCL/users01.dbf' SIZE 2G AUTOEXTEND ON NEXT 100M;</pre>
+        <p>分区表可用于管理大表与提升查询性能（按时间或范围分区最常见）。</p>
+      </section>
+
+      <section id="backup">
+        <h2>6. 备份与恢复（RMAN / Data Pump）</h2>
+        <p><strong>Data Pump（逻辑导出/导入）：</strong>expdp / impdp，用于数据迁移、导出单个 schema 或表。</p>
+        <pre>-- 导出 schema
+expdp system/Pass schemas=hr directory=dp_dir dumpfile=hr.dmp logfile=expdp_hr.log</pre>
+        <p><strong>RMAN（物理备份）：</strong>建议在生产使用 RMAN 定期做完整与增量备份，并设置 retention 策略。</p>
+        <pre>-- 简单 RMAN 备份示例
+rman target /
+RMAN> BACKUP DATABASE PLUS ARCHIVELOG;
+RMAN> REPORT NEED BACKUP;</pre>
+        <p>熟练掌握恢复场景（媒体恢复、点时间恢复、闪回）是 DBA 的核心能力。</p>
+      </section>
+
+      <section id="perf">
+        <h2>7. 性能优化与监控</h2>
+        <ol>
+          <li><strong>SQL 调优：</strong>使用 EXPLAIN PLAN、AUTOTRACE，关注全表扫描、索引选择性、统计信息（DBMS_STATS）。</li>
+          <li><strong>实例调优：</strong>AWR、ASH、ADDM 报告用于定位性能瓶颈。</li>
+          <li><strong>内存与参数：</strong>调整 SGA/PGA、shared_pool_size 等参数谨慎评估。</li>
+        </ol>
+        <pre>-- 生成执行计划
+EXPLAIN PLAN FOR
+SELECT * FROM employees WHERE department_id = 10;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY());</pre>
+      </section>
+
+      <section id="ha">
+        <h2>8. 高可用与进阶技术</h2>
+        <h4>Data Guard</h4>
+        <p>用于主备复制与灾备。包含物理备用（同步/异步）与逻辑备用。</p>
+        <h4>RAC（Real Application Clusters）</h4>
+        <p>多节点共享存储，适合高并发 OLTP 场景。</p>
+        <h4>GoldenGate</h4>
+        <p>用于异构复制或复杂的实时同步场景。</p>
+      </section>
+
+      <section id="23ai">
+        <h2>9. Oracle 23ai 与 AI 特性</h2>
+        <p>2023/2024 以后 Oracle 推出面向数据库的 AI 能力（以 23ai 为例），包含：</p>
+        <ul>
+          <li>向量搜索与向量索引（适用于语义检索、相似度搜索）</li>
+          <li>SQL 优化的自动化建议</li>
+          <li>数据库内置的模型推理能力（视版本许可而定）</li>
+        </ul>
+        <p>学习建议：先掌握向量数据的基本概念（向量化、维度、距离度量），再学习如何在 Oracle 中创建向量列与索引并执行检索。</p>
+      </section>
+
+      <section id="resources">
+        <h2>附：实战练习与资源</h2>
+        <ol>
+          <li>官方文档（首选）：<a href="https://docs.oracle.com/database/" target="_blank">https://docs.oracle.com/database/</a></li>
+          <li>Oracle Dev Gym（练习题）：<a href="https://devgym.oracle.com/" target="_blank">https://devgym.oracle.com/</a></li>
+          <li>练习样例：HR schema、SCOTT schema、SAMPLE 数据集</li>
+          <li>建议搭建环境：Oracle Database Free / Docker 官方镜像 / Vagrant</li>
+        </ol>
+      </section>
+
+      <section id="deploy">
+        <h2>如何把本页面部署为 GitHub Pages（一步到位）</h2>
+        <p>如果你想把这个 HTML 变成永久在线页面，按以下步骤操作（你只需执行一次）：</p>
+        <pre>1. 在 GitHub 上新建一个仓库（例如 oracle-knowledge）。
+2. 在本地把本文件保存为 <span class="kbd">index.html</span>。
+3. 初始化 git 并推送：
+   git init
+   git add index.html
+   git commit -m "Add Oracle 全知识体系"
+   git branch -M main
+   git remote add origin https://github.com/你的用户名/oracle-knowledge.git
+   git push -u origin main
+4. 在仓库 Settings → Pages，选择分支 main、根目录 ( / )，保存。几分钟后生效，GitHub 会给你一个 https://<你的用户名>.github.io/oracle-knowledge/ 链接。</pre>
+        <p>如果你需要，我可以把这个 HTML 文件打包并给你，或者按你的 GitHub 帐号直接帮你生成仓库内容（你需要在本地完成推送以保护凭证）。</p>
+      </section>
+
+      <footer>
+        <p style="color:var(--muted)">— 文档由 ChatGPT 自动生成。需要更详细章节（例如：RMAN 策略示例、RAC 部署步骤、AWR 报告分析实例）我可以继续展开。</p>
+      </footer>
+    </main>
+  </div>
+
+  <footer></footer>
+</body>
+</html>
